@@ -1,43 +1,27 @@
-import os
-import glob
-import json
+# Langchain
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import DirectoryLoader
 from langchain.vectorstores import Chroma
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.document_loaders import Docx2txtLoader
 
-
 #Kor!
-from kor.extraction import create_extraction_chain
-from kor.nodes import Object, Text, Number
+from kor.nodes import Object, Number
 from pydantic import BaseModel, Field, validator
-from kor import extract_from_documents, from_pydantic, create_extraction_chain
+from kor import from_pydantic
 
 # LangChain Models
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 
 # Standard Helpers
-import pandas as pd
 import glob
-from datetime import datetime
-import json
 import os
-
-#from openai
-import openai
 
 #from typing import Optional
 from typing import Optional
-
-#from numpy
-import numpy as np
 
 #from pydocx
 from docx import Document
@@ -45,9 +29,7 @@ from docx import Document
 #from shutil
 import shutil
 
-os.environ["OPENAI_API_KEY"] = "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"
-
-openai_api_key = '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'
+#################### PROMPT ####################
 
 # Step 1: Define Kor objects and models
 augmentation_gen_ouv = Object(
@@ -308,17 +290,31 @@ node, extraction_validator = from_pydantic(
     description="Augmentation de la masse salariale générale ou au mérite/individuelle",
     many=True,)
 
-directory = r"C:\Users\garsonj\Desktop\NLP\new_sample_docx"
-parent_directory = r"C:\Users\garsonj\Desktop\NLP\vector3"
+#################### MODEL ####################
+
+openai_api_key = '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'
+os.environ["OPENAI_API_KEY"] = openai_api_key
+
+directory = glob.glob(r"./data/text/docx/*.docx")
+parent_directory = r"./data/text/vectors"
 
 # Iterate over each file in the directory
-for file in glob.glob(os.path.join(directory, '*.docx')):
+for file in directory:
     file_name = os.path.basename(file)[0:27]
     path = os.path.join(parent_directory, file_name)
-    os.makedirs(path, exist_ok=True)
+    
+    # Check if the path already exists
+    if os.path.exists(path):
+        # If it exists, remove the directory and its contents
+        shutil.rmtree(path)
+    
+    # Create the directory
+    os.makedirs(path)
+    
+    # Set the persist directory for the vector store
     persist = path
 
-    content = []
+    # Open the document
     doc = Document()
     loader = Docx2txtLoader(file)
     doc_text = loader.load()
@@ -339,8 +335,12 @@ for file in glob.glob(os.path.join(directory, '*.docx')):
     max_tokens=750, #token for completion
     openai_api_key=openai_api_key
     )
+    
+    # Retrieve the information from the vector store
+    content = []
     retriever = db.as_retriever()
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
+
     try:
         query = """fais un résumé du texte en relevant les augmentations générales, individuelles et les primes de partage de la valeur ajoutée\
         pour les cadres, intermédiaires et ouvriers, employés"""
@@ -350,16 +350,6 @@ for file in glob.glob(os.path.join(directory, '*.docx')):
         content.append(data)
         doc.add_heading(file_name, level=1)
         doc.add_paragraph(data)
-        doc.save(file_name + '.docx')
+        doc.save(rf"./data/processed/summary/{file_name}" + '.docx')
     except:
         print(f'text trop long',{file_name})
-
-def move_files(currrent_directory, directory):
-    for file in cd:
-        if file.endswith('.docx'):
-            shutil.move(file, directory_summary)
-    return
-    
-directory_summary = r"C:\Users\garsonj\Desktop\NLP\summaryGPT4"
-cd = glob.glob(r"C:\Users\garsonj\Desktop\NLP\*.docx")
-move_files(file, directory_summary)
