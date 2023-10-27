@@ -30,20 +30,23 @@ def extract_text_from_docx(file_path, output_directory):
         file_path (str): The path to the docx file.
         output_directory (str): The path to the directory where the txt file will be saved.
     """
-    doc = Document(file_path)
-    text = []
+    try:
+        doc = Document(file_path)
+        text = []
 
-    # Extraction des textes des paragraphes
-    for paragraph in doc.paragraphs:
-        text.append(paragraph.text)
+        # Extraction des textes des paragraphes
+        for paragraph in doc.paragraphs:
+            text.append(paragraph.text)
 
-    # Create the output directory if it doesn't exist
-    os.makedirs(output_directory, exist_ok=True)
+        # Create the output directory if it doesn't exist
+        os.makedirs(output_directory, exist_ok=True)
 
-    # Ecriture du texte extrait dans un nouveau fichier txt
-    with open(os.path.join(output_directory, os.path.basename(file_path)[:-5] + ".txt"), "w", encoding="utf-8") as f:
-        for line in text:
-            f.write(line + "\n")
+        # Ecriture du texte extrait dans un nouveau fichier txt
+        with open(os.path.join(output_directory, os.path.basename(file_path)[:-5] + ".txt"), "w", encoding="utf-8") as f:
+            for line in text:
+                f.write(line + "\n")
+    except:
+        print("Error while extracting text from", file_path)
 
 # Set your paths
 directory = r"data/text/docx"
