@@ -1,7 +1,11 @@
-accord_extraction
+LLM for information extraction
 ==============================
 
-A NLP model to extract numbers from business agreements
+I use LLM model GPT to extract information about wage variations in french business agreements. This repository contains notebooks about summarization, information retrieval. 
+
+(Potential) Oncoming development: 
+- automatic example generation through LLM.
+- metrics code to measure efficiency of the model.
 
 Project Organization
 ------------
