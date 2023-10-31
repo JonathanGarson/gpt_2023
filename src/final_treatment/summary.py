@@ -292,7 +292,7 @@ node, extraction_validator = from_pydantic(
 
 #################### MODEL ####################
 
-openai_api_key = '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'
+openai_api_key = ''
 os.environ["OPENAI_API_KEY"] = openai_api_key
 
 directory = glob.glob(r"./data/text/docx/*.docx")

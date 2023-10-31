@@ -62,7 +62,7 @@ from typing import Optional
 
 import numpy as np
 
-openai_api_key = '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'
+openai_api_key = ''
 
 # Step 1: Define Kor objects and models
 augmentation_gen_ouv = Object(
